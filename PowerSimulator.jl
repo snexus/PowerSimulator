@@ -1,5 +1,6 @@
 using Base.Threads
 using Distributed
+using Statistics
 
 
 @everywhere include("StatisticalTests.jl")
@@ -39,7 +40,7 @@ function simulate_power_threads(historical_sample::Array{Float64,1}, sample_size
     # Calculating permutation matrix, to speed up sampling. This approach is not space efficient.
     perm_matrix = [randperm(sample_size) for x in 1:n_permutations]
  
-    test_outcomes, p_values = [], []
+    test_outcomes, p_values = Array{Int}(undef, 1, n_permutations), Array{Float64}(undef, 1, n_permutations)
 
     # Here we use threads macros to speed up the loop. We don't require stitching matrices togethers, loops can be completely parallel.
     @inbounds @threads for i in 1:n_iterations
@@ -47,10 +48,11 @@ function simulate_power_threads(historical_sample::Array{Float64,1}, sample_size
        target, control = split_control_target(s, split_ratio_target)
        uplift_target = apply_uplift_numerical(target, effect_size)
 
+       # Resample uplift, to introduce uncertainty
        uplift_target = sample(uplift_target, length(uplift_target), replace=true)
        outcome, p_value = permutation_test(control, uplift_target, alpha, perm_matrix, n_permutations)
-       push!(test_outcomes, outcome)
-       push!(p_values, p_value)
+       test_outcomes[i] = Int(outcome)
+       p_values[i] = Float64(p_value)
     end
     
     return test_outcomes, p_values
@@ -88,3 +90,4 @@ function simulate_power_threads(historical_sample::Array{Float64,1}, sample_size
 #  @time outcomes, p_values = simulate_power(historical_sample, 2000 ,0.05, 0.03, 0.5, 1000, 1000)
 # @time outcomes, p_values = simulate_power_threads(historical_sample, 2000 ,0.05, 0.03, 0.5, 1000, 1000)
 #  @time outcomes = simulate_power_mp(historical_sample, 2000 ,0.05, 0.03, 0.5, 1000, 1000)
+
