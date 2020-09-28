@@ -37,8 +37,6 @@ Simulator is non-parametric, i.e. doesn't have distribution assumptions. Instead
 
   * Iteratively _change_ sample size in simulator with fixed significance, effect size and ratio to achieve the desired power.
  
-
-2) *Experiment analysis stage - estimating minimum detectable effect size given fixed 
 ---
 
 ## Theory
