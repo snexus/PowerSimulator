@@ -82,21 +82,21 @@ Following statistical test is implemented in simulator:
 ```Julia
 using PowerSimulator
 using Distributions
+using Statistics
 
-# Generate dummy historical sample, drawn from Normal distribution. In practice, use your own snapshot of historical data.
+# Generate dummy historical sample, drawn from Normal distribution. In practice, should be replaced by snapshot of historical data.
 hsample = rand(Normal(50.0,20.0), 10000)
 
 sample_size = 2000 # Total sample size, control+target
 split_ratio = 0.5 # Split ratio control/target group. In this case 50%/50%.
 effect_size = 0.03 # Assume 3% effect size.
 alpha = 0.05 # Significance level.Controls type I error. Maximum probability of false positive.
-n_iteration = 1000 # number of iterations for bootstrap procedure.
+n_iterations = 1000 # number of iterations for bootstrap procedure.
 n_permutations = 1000 # number of draws for permutation procedure
 
 # Call multi-threaded version of simulator.
-@time outcomes, p_values = simulate_power_threads(historical_sample, sample_size ,alpha, effect_size, split_ratio, n_iterations, n_permutations)
+@time outcomes, p_values = simulate_power_threads(hsample, sample_size ,alpha, effect_size, split_ratio, n_iterations, n_permutations)
 
 # Calculate power by taking mean of individual outocmes.
-print("Achieved power: ",mean(outomes))
-
+print("Achieved power: ",mean(outcomes))
 ```
